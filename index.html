@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mishi & Amir: Our Forever Match</title>
+    <!-- Load Tailwind CSS from CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Tone.js removed. Music is now handled by local assets/music.mp3 -->
+    
+    <!-- === Custom CSS Styles (Merged from style.css) === -->
+    <style>
+        /* Custom Font Setup - Elegant Serif for Titles, Clean Sans for Body */
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=Inter:wght@400;600;700&display=swap');
+
+        /* --- Custom Colors & Theme (Deep Brown, Off-White, Gold) --- */
+        :root {
+            /* Using a deep, rich brown for better contrast, as requested. */
+            --deep-brown: #4F200C;
+            --deep-brown-hover: #2E1307;
+            --off-white: #FBF8F4; /* Creamy white for "cloth" look */
+            --soft-red: #B71C1C;
+            --gold-accent: #DAA520;
+        }
+
+        /* Base Body and Text Styles */
+        body {
+            background-color: var(--off-white);
+            color: #333; /* Dark text on light background */
+            font-family: 'Inter', sans-serif;
+        }
+
+        .text-playfair {
+            font-family: 'Playfair Display', serif;
+        }
+
+        /* FIX APPLIED HERE:
+           Removed 'visibility: hidden/visible' and replaced with 'pointer-events' 
+           and proper 'z-index' to ensure the opacity transition always runs.
+        */
+        .page {
+            display: flex; 
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--off-white);
+            transition: opacity 0.5s ease-in-out;
+            opacity: 0;
+            pointer-events: none; /* Inactive pages cannot be clicked */
+            z-index: 1; /* Inactive pages are low z-index */
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+        }
+
+        .active {
+            opacity: 1;
+            pointer-events: auto; /* Active page can be clicked */
+            z-index: 10; /* Active page is on top */
+        }
+
+        /* --- Animations --- */
+        @keyframes heartbeat {
+            0% { transform: scale(1); box-shadow: 0 0 10px var(--soft-red); }
+            50% { transform: scale(1.15); box-shadow: 0 0 30px var(--soft-red); }
+            100% { transform: scale(1); box-shadow: 0 0 10px var(--soft-red); }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes floatPetal {
+            0% { transform: translateY(-10vh) translateX(0) rotate(0deg); opacity: 0; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(110vh) translateX(var(--float-end)) rotate(var(--rotate-end)); opacity: 0; }
+        }
+
+        /* Background Animated Container */
+        .animated-background {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 0; /* Keep behind content */
+        }
+
+        .animated-item {
+            position: absolute;
+            opacity: 0;
+            animation: floatPetal linear infinite;
+        }
+
+        /* Page 3: Vows - Typing Effect Style */
+        .typing-container h2 {
+            white-space: pre-wrap;
+            overflow: hidden;
+            border-right: .15em solid transparent;
+        }
+
+        /* The cursor blink animation remains */
+        @keyframes blink-caret {
+            from, to { border-color: transparent }
+            50% { border-color: var(--gold-accent); }
+        }
+
+        /* Page 1 Specific Styling (Envelope) */
+        #page1 {
+            background-color: var(--off-white);
+        }
+
+        .envelope-icon {
+            cursor: pointer;
+            transition: transform 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+
+        .envelope-icon:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+        
+        /* Style for the GIF containers to ensure images fit well */
+        .gif-container {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .gif-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- New Audio Element for background music (hidden) -->
+    <audio id="backgroundMusic" loop preload="auto">
+        <source src="assets/music.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+
+    <div id="app-container" class="relative h-screen w-screen overflow-hidden">
+
+        <!-- All page content will be inside this wrapper -->
+        <div id="content-wrapper" class="h-full w-full relative">
+
+            <!-- Page 1: The Envelope (Start Screen) -->
+            <section id="page1" class="page active" aria-label="Envelope Invitation">
+                <div class="animated-background"></div>
+                <div class="flex flex-col items-center justify-center p-8 text-center relative z-10 w-full h-full">
+                    <h1 class="text-3xl md:text-5xl text-playfair font-semibold text-soft-red mb-12 animate-in fade-in duration-1000">
+                        An Important Message for Mishi...
+                    </h1>
+
+                    <!-- Envelope Icon (SVG) - Click to Open -->
+                    <div class="envelope-icon bg-white p-8 rounded-xl relative" onclick="openEnvelope()">
+                        <!-- Envelope Structure -->
+                        <svg class="w-32 h-32 md:w-48 md:h-48 text-soft-red" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 6c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6zm-2 0l-8 5-8-5h16zm0 12H4V8l8 5 8-5v10z"/>
+                            <!-- Heart Seal -->
+                            <path fill="var(--soft-red)" d="M12 11.5l1.45-1.32C18.6 5.36 22 8.44 22 12.5c0 3.08-2.42 5.5-5.5 5.5-1.74 0-3.41-.81-4.5-2.09C10.91 17.19 9.24 18 7.5 18 4.42 18 2 15.58 2 12.5c0-4.06 3.4-7.14 8.55-11.54L12 21.35z"/>
+                        </svg>
+                    </div>
+
+                    <p class="mt-8 text-lg text-gray-600">Click to open this special letter from Amir.</p>
+
+                    <!-- GIF 1 -->
+                    <div id="gif-placeholder-1" class="my-8 w-24 h-24 rounded-full shadow-lg overflow-hidden">
+                        <img src="assets/images/gif1.gif" alt="Elegant Invitation GIF" class="gif-container w-full h-full object-cover rounded-full"/>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page 2: The Memory Timeline -->
+            <section id="page2" class="page" aria-label="Memory Timeline">
+                <div class="animated-background"></div>
+                <div class="p-8 md:p-16 w-full max-w-6xl mx-auto flex flex-col justify-center items-center relative z-10">
+                    <h2 class="text-4xl text-playfair font-semibold text-soft-red mb-10 mt-10 text-center">Our Precious Moments, Written in the Soul</h2>
+
+                    <!-- GIF 2 -->
+                    <div id="gif-placeholder-2" class="my-6 w-32 h-32 rounded-xl shadow-lg overflow-hidden">
+                        <img src="assets/images/gif2.gif" alt="Memory Flashback GIF" class="gif-container w-full h-full object-cover rounded-xl"/>
+                    </div>
+
+                    <div class="grid md:grid-cols-3 gap-8 w-full">
+                        <!-- Memory 1: The Cold Start, The Warm Growth -->
+                        <div class="p-6 rounded-xl shadow-lg border-t-4 border-soft-red bg-white/70 backdrop-blur-sm transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 0.5s;">
+                            <h3 class="text-2xl font-bold text-soft-red mb-2">The Seed She Planted</h3>
+                            <p class="text-gray-700">When we first met online, I was cold, perhaps scared to feel. But **you patiently developed love in my heart**, turning that coldness into a garden of passion.</p>
+                        </div>
+                        <!-- Memory 2: The Thrill of Her Voice -->
+                        <div class="p-6 rounded-xl shadow-lg border-t-4 border-soft-red bg-white/70 backdrop-blur-sm transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 1.0s;">
+                            <h3 class="text-2xl font-bold text-soft-red mb-2">The Voice That Makes My Heart Race</h3>
+                            <p class="text-gray-700">The moment you send a **voice message**, my world stops. When we had our first call, my **heart was racing, and my words were out of control**?that's the magic of your presence.</p>
+                        </div>
+                        <!-- Memory 3: The Commitment to Meet -->
+                        <div class="p-6 rounded-xl shadow-lg border-t-4 border-soft-red bg-white/70 backdrop-blur-sm transform hover:scale-[1.02] transition-all duration-300" style="animation-delay: 1.5s;">
+                            <h3 class="text-2xl font-bold text-soft-red mb-2">The Day I Will Make You Mine</h3>
+                            <p class="text-gray-700">We may be separated now, but I vow to **do everything for that day when we finally meet**. Until then, our texting, jokes, and future plans keep us close.</p>
+                        </div>
+                    </div>
+                    <!-- BUTTON: Updated to use a deep brown hex code for guaranteed visibility -->
+                    <button onclick="nextPage()" class="mt-12 text-lg px-8 py-3 bg-[#4F200C] hover:bg-[#2E1307] active:bg-[#2E1307] text-white rounded-full transition duration-300 shadow-xl font-extrabold">Continue the Love Story Å®</button>
+                </div>
+            </section>
+
+            <!-- Page 3: The Vows (Typing Effect - Romantic & Funny) -->
+            <section id="page3" class="page" aria-label="Commitment Vows">
+                <div class="animated-background"></div>
+                <!-- ADDED h-full and overflow-y-auto to allow scrolling for the whole content -->
+                <div class="flex flex-col items-center p-8 w-full relative z-10 h-full overflow-y-auto">
+                    <h2 class="text-4xl text-playfair font-semibold text-soft-red mb-10 text-center">Why My Heart Belongs Only to You, Mishi...</h2>
+                    <div class="bg-white p-10 rounded-2xl shadow-2xl max-w-3xl w-full border border-soft-red/30">
+                        <!-- REMOVED min-h-[...] and flex items-center to allow natural top-down flow -->
+                        <div class="typing-container">
+                            <h2 id="typingText" class="text-xl md:text-2xl text-gray-800 text-playfair overflow-hidden"></h2>
+                        </div>
+                    </div>
+
+                    <!-- GIF 3 -->
+                    <div id="gif-placeholder-3" class="mt-8 mb-4 w-24 h-24 rounded-xl shadow-lg overflow-hidden">
+                        <img src="assets/images/gif3.gif" alt="Romantic Climax GIF" class="gif-container w-full h-full object-cover rounded-xl"/>
+                    </div>
+
+                    <!-- BUTTON: Updated to use a deep brown hex code for guaranteed visibility -->
+                    <button onclick="nextPage()" class="mt-4 mb-4 text-lg px-8 py-3 bg-[#4F200C] hover:bg-[#2E1307] active:bg-[#2E1307] text-white rounded-full transition duration-300 shadow-xl opacity-0" id="vowsNextButton">The Time Is Now...</button>
+                    <!-- Added margin-bottom to ensure button has padding at the bottom of the scroll -->
+                </div>
+            </section>
+
+            <!-- Page 4: The Build-up (Refined) -->
+            <section id="page4" class="page" aria-label="Build-up to the Question">
+                <div class="animated-background"></div>
+                <div class="flex flex-col items-center justify-around h-full w-full py-16 relative z-10">
+                    <h2 class="text-5xl text-playfair font-bold text-soft-red mb-10">This Is What My Soul Confesses...</h2>
+                    <div class="text-center p-6 bg-soft-red/10 border-l-4 border-soft-red rounded-lg max-w-xl animate-bounce" style="animation-delay: 0.5s;">
+                        <p class="text-2xl text-gray-800">My every thought is a text message waiting for you.</p>
+                    </div>
+
+                    <!-- GIF 4 -->
+                    <div id="gif-placeholder-4" class="my-8 w-28 h-28 rounded-full shadow-lg overflow-hidden">
+                        <img src="assets/images/gif4.gif" alt="Heart Confession GIF" class="gif-container w-full h-full object-cover rounded-full"/>
+                    </div>
+
+                    <div class="text-center p-6 bg-soft-red/10 border-l-4 border-soft-red rounded-lg max-w-xl animate-bounce" style="animation-delay: 1.0s;">
+                        <p class="text-2xl text-gray-800">My future is just a canvas waiting for your laughter to paint it.</p>
+                    </div>
+                    <div class="text-center p-6 bg-soft-red/10 border-l-4 border-soft-red rounded-lg max-w-xl animate-bounce" style="animation-delay: 1.5s;">
+                        <p class="text-2xl text-gray-800">I am ready to close this chapter of waiting and start our book together.</p>
+                    </div>
+                    <!-- BUTTON: Updated to use a deep brown hex code for guaranteed visibility -->
+                    <button onclick="nextPage()" class="mt-12 text-lg px-8 py-3 bg-[#4F200C] hover:bg-[#2E1307] active:bg-[#2E1307] text-white rounded-full transition duration-300 shadow-xl">The Next Step</button>
+                </div>
+            </section>
+
+            <!-- Page 5: The Question (Direct, No 'No' Option) -->
+            <section id="page5" class="page bg-gradient-to-br from-stone-50 to-red-100" aria-label="The Proposal">
+                <div class="animated-background"></div>
+                <div class="flex flex-col items-center justify-center p-8 w-full relative z-10">
+
+                    <!-- GIF 5 -->
+                    <div id="gif-placeholder-5" class="mb-12 w-32 h-32 md:w-40 md:h-40 rounded-full shadow-2xl overflow-hidden">
+                        <img src="assets/images/gif5.gif" alt="Ring Pop-up GIF" class="gif-container w-full h-full object-cover rounded-full"/>
+                    </div>
+
+                    <h2 class="text-6xl md:text-8xl text-playfair italic font-extrabold mb-16 text-soft-red text-center relative question-text">
+                        Mishi, Will you be mine forever?
+                    </h2>
+
+                    <div class="flex space-x-8 relative">
+                        <!-- BUTTON 1: Updated to use a deep brown hex code for guaranteed visibility -->
+                        <button onclick="answerQuestion(true)" class="text-4xl px-12 py-5 bg-[#4F200C] hover:bg-[#2E1307] text-white font-bold rounded-full shadow-2xl transition transform hover:scale-105 active:scale-95 duration-300 border-4 border-white/50">
+                            YES!
+                        </button>
+                        <!-- BUTTON 2: Updated to use a deep brown hex code for guaranteed visibility -->
+                        <button onclick="answerQuestion(true)" class="text-4xl px-12 py-5 bg-[#4F200C] hover:bg-[#2E1307] text-white font-bold rounded-full shadow-2xl transition transform hover:scale-105 active:scale-95 duration-300 border-4 border-white/50">
+                            Yes, of course!
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Page 6: The Result (Yes only + Photo Request) -->
+            <section id="page6" class="page" aria-label="The Result">
+                <div class="animated-background"></div>
+                <div class="flex flex-col items-center justify-center p-8 w-full text-center relative z-10">
+                    <h2 id="resultTitle" class="text-6xl md:text-8xl text-playfair font-bold mb-6 text-soft-red animate-pulse"></h2>
+                    <p id="resultMessage" class="text-2xl md:text-3xl text-gray-800"></p>
+
+                    <!-- GIF Placeholder 6: The JS function will dynamically replace the content of this div with the actual image/GIF -->
+                    <div id="gif-placeholder-6" class="my-8 w-32 h-32 rounded-full shadow-2xl overflow-hidden">
+                        <!-- Content inserted by JS function answerQuestion() -->
+                    </div>
+
+                    <!-- BUTTON: Updated to use a deep brown hex code for guaranteed visibility -->
+                    <a href="#" class="mt-12 text-lg px-8 py-3 bg-[#4F200C] text-white rounded-full transition duration-300 shadow-xl hover:bg-[#2E1307]" onclick="window.location.reload();">
+                        Relive the Moment
+                    </a>
+                </div>
+            </section>
+
+        </div>
+    </div>
+
+    <!-- === JavaScript Logic === -->
+    <script>
+        // --- Configuration ---
+        const PARTNER_NAME = "Mishi";
+        const MY_NAME = "Amir";
+
+        // Page 3: Poetic, Romantic, and Funny Vows Text
+        const VOWS_TEXT = `To the one my heart has already chosen ? Mishi.
+Mishi... there are millions of hearts in this world, but somehow mine looked around, got confused for a moment... and then ran straight to you like, "Yep ? that's my owner now." ??
+
+You are caring in a way that brings peace to my storms, loyal like a promise written by destiny, modest yet shining more beautifully than any star that tries to compete with you.
+
+Your eyes... yaar, they're dangerously pretty ?? I swear they should come with a warning sign: "May cause sudden heartbeat attacks." ??
+
+You're intelligent not just with your mind, but with your heart too ?? ? you understand me even when I don't understand myself. And our brains? They're perfectly synced! It's like we're sharing the same fast Wi-Fi signal: smooth connection, no lag! ???? Alhamdulillah.
+
+And the way you make me laugh... it's cute, it's healing, it's everything. If laughter keeps people young, then I'm going to stay 23 forever with you.
+
+Every little detail of you ? your words, your softness, your attitude, even the way you get shy sometimes ? it all just makes my heart say: "This is home."
+You're not just beautiful. You're the kind of beautiful that poems get jealous of. You're so much more than the words I know, so much more than the qualities I can list. You are the unexpected miracle I never knew I was praying for.
+
+So yes... my heart belongs to you. Not by force, not by chance ? but because it feels safe, feels happy, feels right... only with you.
+And one day, InshaAllah, I will not only call you my love ? I will call you my wife. My queen. My forever.`;
+
+        const PAGE_IDS = ['page1', 'page2', 'page3', 'page4', 'page5', 'page6'];
+        let currentPageIndex = 0;
+        let isMusicPlaying = false;
+
+        // --- Audio Control Functions ---
+        const backgroundMusic = document.getElementById('backgroundMusic');
+
+        /**
+         * Starts the audio context and transitions from the envelope (Page 1).
+         * Also starts the background music.
+         */
+        async function openEnvelope() {
+            // 1. Start Local Audio Playback (requires user gesture)
+            try {
+                await backgroundMusic.play();
+                isMusicPlaying = true;
+            } catch (error) {
+                console.warn("Audio playback was blocked. Music will start when allowed, perhaps on the next click.");
+            }
+
+            // 2. Set the question text
+            document.querySelector('#page5 h2').textContent = PARTNER_NAME + ", Will you be mine forever?";
+
+            // 3. Initial Page Transition to Page 2
+            const currentPage = document.getElementById(PAGE_IDS[0]);
+            currentPage.classList.remove('active'); // Start fade-out of Page 1
+
+            // The 50ms delay is still necessary to decouple the DOM class removals/additions
+            setTimeout(() => {
+                currentPageIndex = 1; // Move to page 2
+                const nextPageElement = document.getElementById(PAGE_IDS[currentPageIndex]);
+                nextPageElement.classList.add('active'); // Start fade-in of Page 2
+            }, 50); 
+
+            // 4. Start background animations on all pages now that we have user interaction
+            startAllBackgroundAnimations();
+        }
+
+        /**
+         * Navigates to the next page/section.
+         */
+        function nextPage() {
+            if (currentPageIndex < PAGE_IDS.length - 1) {
+                const currentPage = document.getElementById(PAGE_IDS[currentPageIndex]);
+                currentPage.classList.remove('active');
+
+                // Apply the same delay fix to all transitions
+                setTimeout(() => {
+                    currentPageIndex++;
+                    const nextPageElement = document.getElementById(PAGE_IDS[currentPageIndex]);
+                    nextPageElement.classList.add('active');
+
+                    // Trigger specific page effects
+                    if (PAGE_IDS[currentPageIndex] === 'page3') {
+                        startTypingEffect(VOWS_TEXT);
+                    }
+                }, 50);
+            }
+        }
+
+        /**
+         * Implements the typewriter effect for Page 3.
+         */
+        function startTypingEffect(text) {
+            const typingElement = document.getElementById('typingText');
+            const nextButton = document.getElementById('vowsNextButton');
+
+            // Reset state
+            typingElement.textContent = '';
+            nextButton.classList.add('opacity-0');
+
+            // Set up cursor blink animation while typing
+            typingElement.style.borderRight = '.15em solid var(--gold-accent)';
+            typingElement.style.animation = 'blink-caret .75s step-end infinite';
+
+            let charIndex = 0;
+            const speed = 50; // milliseconds per character
+
+            function type() {
+                if (charIndex < text.length) {
+                    typingElement.textContent += text.charAt(charIndex);
+                    charIndex++;
+                    setTimeout(type, speed);
+                } else {
+                    // Typing finished: Hide cursor and show next button
+                    typingElement.style.animation = 'none';
+                    typingElement.style.borderRight = 'none';
+
+                    nextButton.classList.remove('opacity-0');
+                    nextButton.classList.add('animate-in', 'fade-in');
+                }
+            }
+
+            type();
+        }
+
+        /**
+         * Handles the final question answer (Page 5).
+         */
+        function answerQuestion(answer) {
+            // Positive Answer: Engagement + Photo Request
+            document.getElementById('resultTitle').textContent = "YES! I'M YOURS FOREVER!";
+            document.getElementById('resultTitle').classList.add('text-soft-red');
+
+            document.getElementById('resultMessage').innerHTML = `
+                My love, this is the beginning of everything! My heart is full.
+                <br><br>
+                <span class="text-xl md:text-2xl block mt-6 p-4 rounded-lg bg-soft-red/10 shadow-inner max-w-xl mx-auto border-l-4 border-soft-red">
+                    <span class="text-soft-red font-semibold">One sensitive request:</span> I'm still so shy to ask, but now that you've promised me forever, I truly, truly want to see your beautiful face. Would you finally send me a picture? It would make ${MY_NAME} the happiest man alive.
+                </span>
+            `;
+
+            // Placeholder for GIF on Page 6
+            const gifPlaceholder = document.getElementById('gif-placeholder-6');
+            
+            // --- DYNAMICALLY INSERTING GIF 6 ---
+            const localGifPath = "assets/images/gif6.gif";
+            
+            gifPlaceholder.innerHTML = `<img src="${localGifPath}" alt="Success Celebration GIF" class="gif-container w-full h-full object-cover rounded-full animate-pulse"/>`;
+
+            nextPage(); // Move to Page 6
+        }
+
+        /**
+         * Generates and animates floating hearts/petals on all pages.
+         */
+        function startAllBackgroundAnimations() {
+            PAGE_IDS.forEach(pageId => {
+                const container = document.querySelector(`#${pageId} .animated-background`);
+                if (container) {
+                    // Generate 25 animated items per page
+                    for (let i = 0; i < 25; i++) {
+                        const isHeart = Math.random() > 0.5;
+                        const size = Math.random() * 10 + 10; // 10px to 20px
+                        const duration = Math.random() * 8 + 12; // 12s to 20s
+                        const delay = Math.random() * 15; // 0s to 15s
+
+                        const item = document.createElement('div');
+                        item.classList.add('animated-item');
+
+                        // Set unique CSS variables for animation variation
+                        item.style.setProperty('--float-end', `${Math.random() * 300 - 150}px`);
+                        item.style.setProperty('--rotate-end', `${Math.random() * 720 + 360}deg`);
+
+                        item.style.left = `${Math.random() * 100}vw`;
+                        item.style.animationDuration = `${duration}s`;
+                        item.style.animationDelay = `-${delay}s`;
+
+                        if (isHeart) {
+                            // Hearts (SVG)
+                            const heart = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+                            heart.setAttribute('viewBox', '0 0 24 24');
+                            heart.setAttribute('fill', Math.random() > 0.7 ? 'var(--gold-accent)' : 'var(--soft-red)');
+                            heart.style.width = `${size}px`;
+                            heart.style.height = `${size}px`;
+                            heart.style.transform = `rotate(${Math.random() * 360}deg)`;
+                            heart.innerHTML = '<path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>';
+                            item.appendChild(heart);
+                        } else {
+                            // Petals (Simple div/square rotated)
+                            item.style.backgroundColor = Math.random() > 0.8 ? 'var(--gold-accent)' : 'var(--soft-red)';
+                            item.style.width = `${size * 0.7}px`;
+                            item.style.height = `${size}px`;
+                            item.style.borderRadius = '0 50%'; /* Petal shape */
+                        }
+
+                        container.appendChild(item);
+                    }
+                }
+            });
+        }
+
+        // --- Initial Setup on Load ---
+        document.addEventListener('DOMContentLoaded', () => {
+            // We wait for the user to click the envelope to start interaction and music.
+        });
+
+    </script>
+</body>
+</html>
